@@ -27,7 +27,7 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
 
   const formValidations = {
     image: {
-      required: { value: true, message: 'Arquivo obrigatório' },
+      required: { value: true, message: 'Arquivos obrigatórios' },
       validate: {
         lessThan10MB: (fileList: File[]) =>
           fileList[0].size < 10000000 || 'O arquivo deve ser menor que 10MB',
@@ -49,12 +49,12 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
 
   const queryClient = useQueryClient();
   const mutation = useMutation(
-    (data: FormData) => {
-      return api.post('/api/images', data);
+    async (data: FormData) => {
+      await api.post('/api/images', data);
     },
     {
       onSuccess: () => {
-        queryClient.invalidateQueries();
+        queryClient.invalidateQueries('images');
       },
     }
   );
@@ -81,7 +81,7 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
         url: imageUrl,
       };
 
-      mutation.mutateAsync(body);
+      await mutation.mutateAsync(body);
 
       toast({
         title: 'Imagem cadastrada',
@@ -97,6 +97,7 @@ export function FormAddImage({ closeModal }: FormAddImageProps): JSX.Element {
     } finally {
       reset();
       setImageUrl('');
+      setLocalImageUrl('');
       closeModal();
     }
   };
