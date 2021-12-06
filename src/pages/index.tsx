@@ -8,30 +8,40 @@ import { api } from '../services/api';
 import { Loading } from '../components/Loading';
 import { Error } from '../components/Error';
 
+interface IApiGetImagens {
+  after: number | null;
+  data: {
+    title: string;
+    description: string;
+    url: string;
+    ts: number;
+    id: string;
+  }[];
+}
+
 export default function Home(): JSX.Element {
-  // const {
-  //   data,
-  //   isLoading,
-  //   isError,
-  //   isFetchingNextPage,
-  //   fetchNextPage,
-  //   hasNextPage,
-  // } = useInfiniteQuery(
-  //   'images',
-  //   // TODO AXIOS REQUEST WITH PARAM
-  //   ,
-  //   // TODO GET AND RETURN NEXT PAGE PARAM
-  // );
+  const {
+    data,
+    isLoading,
+    isError,
+    isFetchingNextPage,
+    fetchNextPage,
+    hasNextPage,
+  } = useInfiniteQuery(
+    'images',
+    ({ pageParam = 0 }) => {
+      return api.get<IApiGetImagens>(`/api/images?after=${pageParam}`);
+    },
+    { getNextPageParam: lastPage => lastPage.data.after || 0 }
+  );
 
-  // const formattedData = useMemo(() => {
-  //   // TODO FORMAT AND FLAT DATA ARRAY
-  // }, [data]);
+  const formattedData = useMemo(() => {
+    return data?.pages.map(item => item.data.data).flat();
+  }, [data]);
 
-  // if (isLoading) return <Loading />;
+  if (isLoading) return <Loading />;
 
-  // if (isError) return <Error />;
-
-  const formattedData = [];
+  if (isError) return <Error />;
 
   return (
     <>
